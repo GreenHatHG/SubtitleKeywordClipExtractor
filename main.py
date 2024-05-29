@@ -136,7 +136,7 @@ def delete_existing_files(clips_folder, keyword):
     """
     for root, dirs, files in os.walk(clips_folder):
         for file in files:
-            if keyword in file:
+            if f"「{keyword}」" in file:
                 file_path = os.path.join(root, file)
                 os.remove(file_path)
                 print(f"Deleted existing file: {file_path}")
