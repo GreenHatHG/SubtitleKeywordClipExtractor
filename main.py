@@ -163,11 +163,11 @@ def extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, nex
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Subtitle Keyword Search and Clip Extractor")
-    parser.add_argument("--keyword", type=str, help="Japanese keyword to search for", required=True)
-    parser.add_argument("--base_folder", type=str, help="Root folder to start searching", required=True)
-    parser.add_argument("--prev_count", type=int, default=2, help="Number of subtitles to include before the keyword match")
-    parser.add_argument("--next_count", type=int, default=2, help="Number of subtitles to include after the keyword match")
+parser = argparse.ArgumentParser(description="Subtitle Keyword Search and Clip Extractor")
+    parser.add_argument("--keyword", "-k", type=str, help="Japanese keyword to search for", required=True)
+    parser.add_argument("--base_folder", "-b", type=str, help="Root folder to start searching", required=True)
+    parser.add_argument("--prev_count", "-p", type=int, default=2, help="Number of subtitles to include before the keyword match")
+    parser.add_argument("--next_count", "-n", type=int, default=2, help="Number of subtitles to include after the keyword match")
     args = parser.parse_args()
 
     keyword = args.keyword
