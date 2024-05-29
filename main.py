@@ -1,6 +1,9 @@
 import argparse
 import os
+import shutil
 import subprocess
+import time
+
 from pysrt import SubRipFile, SubRipItem, SubRipTime
 
 
@@ -96,16 +99,45 @@ def create_output_paths(clips_folder, keyword, video_name, start_str, end_str):
     return output_clip, output_srt
 
 
-def extract_video_clip(video_file, start_seconds, end_seconds, output_clip):
+def create_temp_paths():
+    return f"{int(time.time())}.mp4", f"{int(time.time())}.srt"
+
+
+def calculate_padding_height(subtitle_file, line_height=40, line_spacing=10):
     """
-    Extract the video clip using ffmpeg.
+    Calculate the padding height needed based on the maximum number of lines in the subtitles.
     """
+    max_lines = 0
+    with open(subtitle_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        current_lines = 0
+        for line in lines:
+            if line.strip() == '':
+                if current_lines > max_lines:
+                    max_lines = current_lines
+                current_lines = 0
+            else:
+                current_lines += 1
+        if current_lines > max_lines:
+            max_lines = current_lines
+
+    return max_lines * line_height + (max_lines - 1) * line_spacing
+
+
+def extract_video_clip(video_file, start_seconds, end_seconds, output_clip, output_srt):
+    """
+    Extract the video clip using ffmpeg and embed the subtitles.
+    """
+    padding_height = calculate_padding_height(output_srt)
+    vf_filter = f"[0:v]pad=iw:ih+{padding_height}:0:0:black[sub];[sub]subtitles={output_srt}:force_style='Alignment=2'"
+
     ffmpeg_command = [
         'ffmpeg',
         '-ss', format_ffmpeg_time(start_seconds),
         '-i', video_file,
         '-ss', '0',
         '-to', format_ffmpeg_time(end_seconds - start_seconds),
+        '-vf', vf_filter,
         '-c:v', 'libx264',
         '-c:a', 'aac',
         output_clip
@@ -169,14 +201,17 @@ def extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, nex
             start_str = format_time(start_time)
             end_str = format_time(end_time)
             video_name = extract_path_parts(video_file)
-            output_clip, output_srt = create_output_paths(clips_folder, keyword, video_name, start_str, end_str)
+            temp_clip, temp_srt = create_temp_paths()
 
             try:
-                extract_video_clip(video_file, start_seconds, end_seconds, output_clip)
-                create_srt_file(subs, start_time, end_time, output_srt)
+                create_srt_file(subs, start_time, end_time, temp_srt)
+                extract_video_clip(video_file, start_seconds, end_seconds, temp_clip, temp_srt)
+                output_clip, output_srt = create_output_paths(clips_folder, keyword, video_name, start_str, end_str)
+                shutil.move(temp_clip, output_clip)
+                shutil.move(temp_srt, output_srt)
                 print(f"Extracted clip: {output_clip}")
                 print(f"Saved SRT: {output_srt}")
-            except subprocess.CalledProcessError as e:
+            except Exception as e:
                 print(f"Error extracting clip from {video_file}: {e}")
         else:
             print(f"No corresponding video file found for subtitle file: {subtitle_file}")
