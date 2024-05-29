@@ -1,6 +1,6 @@
 import os
 import subprocess
-from pysrt import SubRipFile
+from pysrt import SubRipFile, SubRipItem, SubRipTime
 
 
 def search_subtitle_files(folder, keyword):
@@ -44,6 +44,7 @@ def find_video_file(subtitle_file):
 def extract_clips(selected_subtitle_files, base_folder, keyword):
     """
     Extract video clips based on the selected subtitle time ranges.
+    Also save the corresponding SRT file.
     """
     clips_folder = os.path.join(base_folder, 'clips')
     os.makedirs(clips_folder, exist_ok=True)
@@ -79,7 +80,13 @@ def extract_clips(selected_subtitle_files, base_folder, keyword):
                 f"「{keyword}」_[{video_name}]_[{start_str}]_to_[{end_str}].mp4"
             )
 
+            output_srt = os.path.join(
+                clips_folder,
+                f"「{keyword}」_[{video_name}]_[{start_str}]_to_[{end_str}].srt"
+            )
+
             try:
+                # Extract the video clip using ffmpeg
                 ffmpeg_command = [
                     'ffmpeg',
                     '-ss', format_ffmpeg_time(start_seconds),
@@ -91,7 +98,18 @@ def extract_clips(selected_subtitle_files, base_folder, keyword):
                     output_clip
                 ]
                 subprocess.run(ffmpeg_command, check=True)
+
+                # Create a new SRT file for the extracted clip
+                new_subs = SubRipFile()
+                for sub in subs:
+                    if start_time <= sub.start.to_time() <= end_time:
+                        new_start = SubRipTime.from_ordinal(sub.start.ordinal - previous_subtitle.start.ordinal)
+                        new_end = SubRipTime.from_ordinal(sub.end.ordinal - previous_subtitle.start.ordinal)
+                        new_subs.append(SubRipItem(index=sub.index, start=new_start, end=new_end, text=sub.text))
+                new_subs.save(output_srt, encoding='utf-8')
+
                 print(f"Extracted clip: {output_clip}")
+                print(f"Saved SRT: {output_srt}")
             except subprocess.CalledProcessError as e:
                 print(f"Error extracting clip from {video_file}: {e}")
         else:
@@ -111,6 +129,7 @@ def extract_path_parts(file_path):
     result = f"{dir_parts[-1]}-{file_name}"
 
     return result
+
 
 def format_time(time_obj):
     """
@@ -138,7 +157,7 @@ def convert_to_seconds(time_obj):
 
 def main():
     keyword = input("Enter the Japanese keyword to search for: ")
-    base_folder = r'd:\1'  # Root folder to start searching
+    base_folder = r'd:\Demo'  # Root folder to start searching
 
     subtitle_files = search_subtitle_files(base_folder, keyword)
     if subtitle_files:
