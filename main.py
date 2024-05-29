@@ -117,8 +117,10 @@ def create_srt_file(subs, start_time, end_time, output_srt):
     new_subs = SubRipFile()
     for sub in subs:
         if start_time <= sub.start.to_time() <= end_time:
-            new_start_ms = (sub.start.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
-            new_end_ms = (sub.end.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
+            new_start_ms = (
+                        sub.start.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
+            new_end_ms = (
+                        sub.end.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
             new_start = SubRipTime.from_ordinal(new_start_ms)
             new_end = SubRipTime.from_ordinal(new_end_ms)
             new_subs.append(SubRipItem(index=sub.index, start=new_start, end=new_end, text=sub.text))
@@ -163,11 +165,13 @@ def extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, nex
 
 
 def main():
-parser = argparse.ArgumentParser(description="Subtitle Keyword Search and Clip Extractor")
+    parser = argparse.ArgumentParser(description="Subtitle Keyword Search and Clip Extractor")
     parser.add_argument("--keyword", "-k", type=str, help="Japanese keyword to search for", required=True)
     parser.add_argument("--base_folder", "-b", type=str, help="Root folder to start searching", required=True)
-    parser.add_argument("--prev_count", "-p", type=int, default=2, help="Number of subtitles to include before the keyword match")
-    parser.add_argument("--next_count", "-n", type=int, default=2, help="Number of subtitles to include after the keyword match")
+    parser.add_argument("--prev_count", "-p", type=int, default=2,
+                        help="Number of subtitles to include before the keyword match")
+    parser.add_argument("--next_count", "-n", type=int, default=2,
+                        help="Number of subtitles to include after the keyword match")
     args = parser.parse_args()
 
     keyword = args.keyword
