@@ -54,7 +54,31 @@ base_folder
 3. Follow the prompts:
     - Enter the Japanese keyword to search for.
     - Enter the indices of the subtitles you want to clip (comma-separated).
-  
+
+## Usage Example
+
+```
+D:\scoop\apps\python37\current\python.exe main.py
+Enter the Japanese keyword to search for: 映画
+Found subtitles:
+[0] d:\Demo\show1\1.srt - 映画の ど頭にピラミッドみたいな
+壮大な建物が出てくるでしょ
+[1] d:\Demo\show1\1.srt - あっ 見てないです その映画
+[2] d:\Demo\show1\1.srt - 私 メジャーな映画しか見なくて
+[3] d:\Demo\show1\1.srt - （信介）十分メジャーだけど
+（英治）オタク映画
+[4] d:\Demo\show1\1.srt - 「ブレードランナー」を見る前に
+押さえておく映画としては—
+[5] d:\Demo\show1\1.srt - これ 映画本編じゃなくて
+メーキングですけど—
+[6] d:\Demo\show1\1.srt - 映画 見ても
+同じじゃないですか
+[7] d:\Demo\show1\3.srt - あっ よかったら この映画の
+パート２ 入荷してますんで
+Enter the indices of subtitles to clip (comma separated): 5
+Extracted clip: d:\Demo\clips\「映画」_[show1-1.mp4]_[00-06-50]_to_[00-07-04].mp4
+```
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
@@ -62,7 +86,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
-
-## Contact
-
-For any questions or suggestions, please submit issue.
