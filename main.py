@@ -121,22 +121,37 @@ def create_srt_file(subs, start_time, end_time, output_srt):
     for sub in subs:
         if start_time <= sub.start.to_time() <= end_time:
             new_start_ms = (
-                        sub.start.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
+                    sub.start.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
             new_end_ms = (
-                        sub.end.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
+                    sub.end.ordinal - start_time.hour * 3600000 - start_time.minute * 60000 - start_time.second * 1000 - start_time.microsecond // 1000)
             new_start = SubRipTime.from_ordinal(new_start_ms)
             new_end = SubRipTime.from_ordinal(new_end_ms)
             new_subs.append(SubRipItem(index=sub.index, start=new_start, end=new_end, text=sub.text))
     new_subs.save(output_srt, encoding='utf-8')
 
 
-def extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, next_count):
+def delete_existing_files(clips_folder, keyword):
+    """
+    Delete all files in the clips folder that contain the keyword.
+    """
+    for root, dirs, files in os.walk(clips_folder):
+        for file in files:
+            if keyword in file:
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+                print(f"Deleted existing file: {file_path}")
+
+
+def extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, next_count, overwrite):
     """
     Extract video clips based on the selected subtitle time ranges.
     Also save the corresponding SRT file.
     """
     clips_folder = os.path.join(base_folder, 'clips')
     os.makedirs(clips_folder, exist_ok=True)
+
+    if overwrite:
+        delete_existing_files(clips_folder, keyword)
 
     for subtitle_file, subtitle_index in selected_subtitle_files:
         subs = SubRipFile.open(subtitle_file)
@@ -175,12 +190,15 @@ def main():
                         help="Number of subtitles to include before the keyword match")
     parser.add_argument("--next_count", "-n", type=int, default=2,
                         help="Number of subtitles to include after the keyword match")
+    parser.add_argument("--overwrite", "-o", action='store_true',
+                        help="Delete all existing clips and SRT files containing the keyword before extracting new ones")
     args = parser.parse_args()
 
     keyword = args.keyword
     base_folder = args.base_folder
     prev_count = args.prev_count
     next_count = args.next_count
+    overwrite = args.overwrite
 
     subtitle_files = search_subtitle_files(base_folder, keyword)
     if subtitle_files:
@@ -194,7 +212,7 @@ def main():
         selected_indices = [int(index.strip()) for index in selected_indices.split(',')]
         selected_subtitle_files = [(subtitle_files[i][0], subtitle_files[i][1]) for i in selected_indices]
 
-        extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, next_count)
+        extract_clips(selected_subtitle_files, base_folder, keyword, prev_count, next_count, overwrite)
     else:
         print("No subtitles found with the given keyword.")
 
