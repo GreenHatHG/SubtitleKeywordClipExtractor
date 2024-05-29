@@ -34,6 +34,7 @@ SubtitleKeywordClipExtractor is a Python tool that searches for specific keyword
 
 ## Directory Structure Example
 
+```
 base_folder
   ├── Show1
   │     ├── 1.mp4
@@ -41,7 +42,8 @@ base_folder
   └── Show2
         ├── 2.mp4
         └── 2.srt
-        
+```
+     
 ## Usage
 
 1. Make sure your video files and corresponding subtitle files are in the same directory or subdirectories.
