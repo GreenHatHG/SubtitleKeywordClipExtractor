@@ -6,10 +6,13 @@ from pysrt import SubRipFile, SubRipItem, SubRipTime
 
 def search_subtitle_files(folder, keyword):
     """
-    Search for subtitles containing the given keyword in the specified folder and its subfolders.
+    Search for subtitles containing the given keyword in the specified folder and its subfolders,
+    excluding the 'clips' folder.
     """
     subtitle_files = []
     for root, dirs, files in os.walk(folder):
+        # Skip the 'clips' folder
+        dirs[:] = [d for d in dirs if d != 'clips']
         for file in files:
             if file.endswith('.srt'):
                 subtitle_file_path = os.path.join(root, file)
@@ -184,7 +187,8 @@ def main():
         print("Found subtitles:")
         for i, (subtitle_file, index) in enumerate(subtitle_files):
             subs = SubRipFile.open(subtitle_file)
-            print(f"[{i}] {subtitle_file} - {subs[index].text}")
+            relative_path = os.path.relpath(subtitle_file, base_folder)
+            print(f"[{i}] {relative_path} - {subs[index].text}")
 
         selected_indices = input("Enter the indices of subtitles to clip (comma separated): ")
         selected_indices = [int(index.strip()) for index in selected_indices.split(',')]
