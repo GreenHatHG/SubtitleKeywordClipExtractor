@@ -1,3 +1,4 @@
+import argparse
 import os
 import subprocess
 from pysrt import SubRipFile, SubRipItem, SubRipTime
@@ -156,8 +157,13 @@ def convert_to_seconds(time_obj):
 
 
 def main():
-    keyword = input("Enter the Japanese keyword to search for: ")
-    base_folder = r'd:\Demo'  # Root folder to start searching
+    parser = argparse.ArgumentParser(description="Subtitle Keyword Search and Clip Extractor")
+    parser.add_argument("--keyword", type=str, help="Japanese keyword to search for", required=True)
+    parser.add_argument("--base_folder", type=str, help="Root folder to start searching", required=True)
+    args = parser.parse_args()
+
+    keyword = args.keyword
+    base_folder = args.base_folder
 
     subtitle_files = search_subtitle_files(base_folder, keyword)
     if subtitle_files:
