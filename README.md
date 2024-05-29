@@ -31,22 +31,20 @@ SubtitleKeywordClipExtractor is a Python tool that searches for specific keyword
     ```
 
 3. Ensure `ffmpeg` is installed on your system. You can download it from [FFmpeg official website](https://ffmpeg.org/download.html).
-
-## Directory Structure Example
-
-```
-base_folder
-  ├── Show1
-  │     ├── 1.mp4
-  │     └── 1.srt
-  └── Show2
-        ├── 2.mp4
-        └── 2.srt
-```
      
 ## Usage
 
-1. Make sure your video files and corresponding subtitle files are in the same directory or subdirectories.
+1. Modify the `base_folder` variable in `main.py` to point to your base directory, and ensure the directory structure matches the following:
+    ```
+    base_folder
+      ├── Show1
+      │     ├── 1.mp4
+      │     └── 1.srt
+      └── Show2
+            ├── 2.mp4
+            └── 2.srt
+    ```
+
 2. Run the script:
     ```bash
     python main.py
